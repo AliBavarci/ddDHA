@@ -376,12 +376,16 @@
            ===================================================== */
 
         /* MATRIX CANVAS */
-        #matrix-canvas {
-            position: fixed; inset: 0;
-            z-index: -1; pointer-events: none;
-            opacity: 0; transition: opacity .6s;
-        }
-        #matrix-canvas.active { opacity: .18; }
+		#matrix-canvas {
+			position: fixed; inset: 0;
+			z-index: 9994;                    /* ← was -1 */
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity .6s;
+			mix-blend-mode: screen;           /* ← new */
+		}
+		#matrix-canvas.active { opacity: .35; }  /* ← was .18 */
+		
 
         /* CURSOR PARTICLE */
         .cursor-particle {
@@ -418,6 +422,10 @@
             background: #000; border: 2px solid var(--cyber-cyan);
             padding: 12px; min-width: 200px;
             box-shadow: 0 0 30px rgba(0,240,255,.3);
+            <button class="fx-item" data-fx="nuke">
+                <span>☢ DHA_NUKE</span>
+                <span class="indicator">☢</span>
+            </button>
         }
         .fx-panel.open .fx-list { display: flex; }
         .fx-item {
@@ -633,6 +641,234 @@
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
+        /* =====================================================
+   ☢ DHA NUKE EASTER EGG — typing D-H-A
+   ===================================================== */
+
+.dha-explosion-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100003;
+    pointer-events: none;
+    overflow: hidden;
+    animation: dha-dim 1.8s ease-in forwards;
+}
+
+@keyframes dha-dim {
+    0%   { background: rgba(0,0,0,0); }
+    100% { background: rgba(0,0,0,0.45); }
+}
+
+/* Phase 1 — logo falls toward camera */
+.dha-descending-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+    transform: translate(-50%, -50%) scale(0.05);
+    opacity: 0;
+    will-change: transform, opacity, filter;
+    animation: dha-fall 1.8s cubic-bezier(0.55, 0, 0.9, 1) forwards;
+    filter: drop-shadow(0 0 30px rgba(0,240,255,.9))
+            drop-shadow(0 0 60px rgba(255,0,160,.6));
+}
+
+@keyframes dha-fall {
+    0% {
+        transform: translate(-50%,-50%) scale(0.05) rotate(0deg);
+        opacity: 0;
+        filter: drop-shadow(0 0 20px rgba(0,240,255,.9)) blur(4px);
+    }
+    20% {
+        opacity: 1;
+        filter: drop-shadow(0 0 40px rgba(0,240,255,1)) blur(0);
+    }
+    70% {
+        transform: translate(-50%,-50%) scale(4) rotate(180deg);
+        filter: drop-shadow(0 0 100px rgba(0,240,255,1))
+                drop-shadow(0 0 150px rgba(255,0,160,.9)) blur(0);
+    }
+    95% { opacity: 1; }
+    100% {
+        transform: translate(-50%,-50%) scale(28) rotate(360deg);
+        opacity: 0;
+        filter: drop-shadow(0 0 200px rgba(255,255,255,1)) blur(6px);
+    }
+}
+
+/* Phase 2 — white flash */
+.dha-nuke-flash {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dha-explosion-overlay.flash .dha-nuke-flash {
+    animation: dha-flash 0.5s ease-out forwards;
+}
+
+@keyframes dha-flash {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Phase 3 — fireball core, POV from above */
+.dha-nuke-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    will-change: width, height, opacity;
+    background: radial-gradient(circle,
+        #ffffff 0%,
+        #ffffcc 15%,
+        #ffcc00 30%,
+        #ff6600 55%,
+        #ff0040 75%,
+        transparent 90%);
+}
+
+.dha-explosion-overlay.mushroom .dha-nuke-core {
+    animation: dha-core-grow 3s ease-out forwards;
+}
+
+@keyframes dha-core-grow {
+    0%   { width: 0; height: 0; opacity: 1; box-shadow: 0 0 100px 40px rgba(255,255,200,1); }
+    20%  { width: 30vmax; height: 30vmax; opacity: 1;  box-shadow: 0 0 200px 100px rgba(255,200,0,.9); }
+    50%  { width: 70vmax; height: 70vmax; opacity: .8; box-shadow: 0 0 300px 150px rgba(255,100,0,.6); }
+    100% { width: 160vmax; height: 160vmax; opacity: 0; box-shadow: 0 0 400px 200px rgba(255,50,0,0); }
+}
+
+/* Phase 4 — concentric shockwave rings (POV from above) */
+.dha-nuke-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border-style: solid;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    will-change: width, height, opacity;
+    box-shadow: 0 0 40px 15px rgba(255,200,100,.9);
+}
+
+.ring-1 { --delay: 0s;     border-color: #ffffff; }
+.ring-2 { --delay: 0.25s;  border-color: #ffcc00; }
+.ring-3 { --delay: 0.50s;  border-color: #ff6600; }
+.ring-4 { --delay: 0.75s;  border-color: #ff0040; }
+.ring-5 { --delay: 1.00s;  border-color: #ff00a0; }
+
+.dha-explosion-overlay.mushroom .dha-nuke-ring {
+    animation: dha-ring-expand 3.5s ease-out var(--delay, 0s) forwards;
+}
+
+@keyframes dha-ring-expand {
+    0%   { width: 0; height: 0; opacity: 1;   border-width: 24px; }
+    40%  { opacity: .8;                       border-width: 12px; }
+    100% { width: 250vmax; height: 250vmax;   opacity: 0; border-width: 1px; }
+}
+
+/* Phase 5 — radial debris */
+.dha-nuke-debris {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+
+.dha-explosion-overlay.mushroom .dha-nuke-debris {
+    animation: dha-debris-grow 2.5s ease-out 0.2s forwards;
+}
+
+@keyframes dha-debris-grow {
+    0% {
+        width: 0; height: 0; opacity: 0;
+        box-shadow:
+            0 0 0 0 rgba(255,255,200,.9),
+            0 0 0 0 rgba(255,200,100,.8),
+            0 0 0 0 rgba(255,150,50,.7),
+            0 0 0 0 rgba(255,100,0,.6);
+    }
+    20% { opacity: 1; }
+    100% {
+        width: 60vmax; height: 60vmax; opacity: 0;
+        box-shadow:
+            0 0 0 200px rgba(255,255,200,0),
+            0 0 0 400px rgba(255,200,100,0),
+            0 0 0 600px rgba(255,150,50,0),
+            0 0 0 800px rgba(255,100,0,0);
+    }
+}
+
+/* Vignette */
+.dha-nuke-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center,
+        transparent 20%,
+        rgba(0,0,0,.5) 70%,
+        rgba(0,0,0,.9) 100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dha-explosion-overlay.flash .dha-nuke-vignette,
+.dha-explosion-overlay.mushroom .dha-nuke-vignette {
+    animation: dha-vignette 3s ease-out forwards;
+}
+
+@keyframes dha-vignette {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    70%  { opacity: .7; }
+    100% { opacity: 0; }
+}
+
+/* Shake (overlay only, avoids breaking position:fixed children) */
+.dha-explosion-overlay.dha-shaking {
+    animation: dha-shake 0.06s infinite;
+}
+
+@keyframes dha-shake {
+    0%   { transform: translate(0,0) rotate(0deg); }
+    20%  { transform: translate(-4px,3px) rotate(-0.3deg); }
+    40%  { transform: translate(4px,-3px) rotate(0.3deg); }
+    60%  { transform: translate(-3px,-4px) rotate(-0.2deg); }
+    80%  { transform: translate(3px,4px) rotate(0.2deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
+}
+
+/* Fade out */
+.dha-explosion-overlay.fadeout {
+    animation: dha-overlay-fade 1s ease-out forwards;
+}
+
+@keyframes dha-overlay-fade {
+    to { opacity: 0; }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .dha-explosion-overlay.dha-shaking { animation: none; }
+    .dha-explosion-overlay.flash .dha-nuke-flash {
+        background: rgba(255,255,255,.35);
+    }
+}
     </style>
 </head>
 <body id="top">
@@ -1616,52 +1852,164 @@
         if (Terminal.closeBtn) Terminal.closeBtn.addEventListener('click', function () { Terminal.close(); });
         if (Terminal.overlay) Terminal.overlay.addEventListener('click', function () { Terminal.close(); });
 
+        /* ============ ☢ DHA NUKE EASTER EGG ============ */
+const DhaNuke = {
+    active: false,
+    state: { d: 0, h: 0, lastKey: 0, dTimer: null },
+
+    trigger: function () {
+        if (this.active) return;
+        this.active = true;
+
+        // Sound: temporarily enable + remember state
+        Sound.init();
+        const wasSoundEnabled = Sound.enabled;
+        Sound.enabled = true;
+
+        // Build overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'dha-explosion-overlay dha-shaking';
+        overlay.innerHTML =
+            '<div class="dha-nuke-flash"></div>' +
+            '<img src="assets/DHA_logo_h.png" class="dha-descending-logo" alt="">' +
+            '<div class="dha-nuke-vignette"></div>' +
+            '<div class="dha-nuke-core"></div>' +
+            '<div class="dha-nuke-ring ring-1"></div>' +
+            '<div class="dha-nuke-ring ring-2"></div>' +
+            '<div class="dha-nuke-ring ring-3"></div>' +
+            '<div class="dha-nuke-ring ring-4"></div>' +
+            '<div class="dha-nuke-ring ring-5"></div>' +
+            '<div class="dha-nuke-debris"></div>';
+        document.body.appendChild(overlay);
+
+        // Phase 1 — rising sweep (0–1.8s)
+        for (let i = 0; i < 18; i++) {
+            (function (idx) {
+                setTimeout(function () {
+                    Sound.beep(100 + idx * 55, 0.06, 'sawtooth');
+                }, idx * 100);
+            })(i);
+        }
+
+        // Phase 2 — FLASH + BOOM (at 1.8s)
+        setTimeout(function () {
+            overlay.classList.add('flash');
+            overlay.classList.remove('dha-shaking');
+            Sound.beep(45, 1.2, 'sawtooth');
+            Sound.beep(80, 0.8, 'triangle');
+            Sound.beep(120, 0.5, 'square');
+        }, 1800);
+
+        // Phase 3 — MUSHROOM (at 2.0s)
+        setTimeout(function () {
+            overlay.classList.add('mushroom');
+            for (let i = 0; i < 10; i++) {
+                (function () {
+                    setTimeout(function () {
+                        Sound.beep(30 + Math.random() * 80, 0.3, 'triangle');
+                    }, i * 100);
+                })();
+            }
+        }, 2000);
+
+        // Phase 4 — Fade (at 5.2s)
+        setTimeout(function () {
+            overlay.classList.add('fadeout');
+        }, 5200);
+
+        // Cleanup (at 6.2s)
+        const self = this;
+        setTimeout(function () {
+            overlay.remove();
+            Sound.enabled = wasSoundEnabled;
+            self.active = false;
+        }, 6200);
+    }
+};
+
         /* ============ KEYBOARD SHORTCUTS ============ */
         let konamiIdx = 0;
         const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 
-        document.addEventListener('keydown', function (e) {
-            // Ctrl + ` opens terminal
-            if ((e.ctrlKey || e.metaKey) && e.key === '`') {
-                e.preventDefault();
-                if (Terminal.panel.classList.contains('open')) Terminal.close(); else Terminal.open();
-                return;
+document.addEventListener('keydown', function (e) {
+    // Ctrl + ` opens terminal
+    if ((e.ctrlKey || e.metaKey) && e.key === '`') {
+        e.preventDefault();
+        if (Terminal.panel.classList.contains('open')) Terminal.close(); else Terminal.open();
+        return;
+    }
+
+    // Esc closes terminal and rave
+    if (e.key === 'Escape') {
+        if (Terminal.panel.classList.contains('open')) Terminal.close();
+        if (Rave.active) Rave.stop();
+        return;
+    }
+
+    // Skip if typing in an input/textarea
+    const tag = (document.activeElement.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    const k = e.key.toLowerCase();
+    const now = Date.now();
+
+    // ===== DHA SEQUENCE DETECTION (before other shortcuts) =====
+    if (now - DhaNuke.state.lastKey > 1000) {
+        DhaNuke.state.d = 0;
+        DhaNuke.state.h = 0;
+    }
+    DhaNuke.state.lastKey = now;
+
+    if (k === 'd' && DhaNuke.state.d === 0) {
+        DhaNuke.state.d = 1;
+        clearTimeout(DhaNuke.state.dTimer);
+        // Delay DADA — if H-A follows, nuke fires instead
+        DhaNuke.state.dTimer = setTimeout(function () {
+            if (DhaNuke.state.d === 1 && DhaNuke.state.h === 0) {
+                DadaInjector.inject();
+                Sound.type();
+                DhaNuke.state.d = 0;
             }
+        }, 700);
+        return;
+    }
 
-            // Esc closes terminal and rave
-            if (e.key === 'Escape') {
-                if (Terminal.panel.classList.contains('open')) Terminal.close();
-                if (Rave.active) Rave.stop();
-                return;
-            }
+    if (k === 'h' && DhaNuke.state.d === 1) {
+        DhaNuke.state.h = 1;
+        return;
+    }
 
-            // If typing in an input/textarea, ignore other shortcuts
-            const tag = (document.activeElement.tagName || '').toLowerCase();
-            if (tag === 'input' || tag === 'textarea') return;
+    if (k === 'a' && DhaNuke.state.h === 1) {
+        clearTimeout(DhaNuke.state.dTimer);
+        DhaNuke.state.d = 0;
+        DhaNuke.state.h = 0;
+        DhaNuke.trigger();
+        return;
+    }
 
-            // Quick shortcuts
-            if (e.key === 'm' || e.key === 'M') { updateFxIndicator('matrix', Matrix.toggle()); Sound.type(); }
-            if (e.key === 'g' || e.key === 'G') { triggerGlitch(); }
-            if (e.key === 'd' || e.key === 'D') { DadaInjector.inject(); Sound.type(); }
-            if (e.key === 'r' || e.key === 'R') { Rave.toggle(); updateFxIndicator('rave', Rave.active); }
+    // If mid-sequence, don't fire other shortcuts
+    if (DhaNuke.state.d || DhaNuke.state.h) return;
 
-            // Konami
-            const k = e.key.toLowerCase();
-            if (k === KONAMI[konamiIdx]) {
-                konamiIdx++;
-                if (konamiIdx === KONAMI.length) {
-                    konamiIdx = 0;
-                    Rave.start();
-                    DadaInjector.inject();
-                    setTimeout(function () { triggerGlitch(); }, 300);
-                }
-            } else if (k === KONAMI[0]) {
-                konamiIdx = 1;
-            } else {
-                konamiIdx = 0;
-            }
-        });
+    // ===== REGULAR SHORTCUTS =====
+    if (k === 'm') { updateFxIndicator('matrix', Matrix.toggle()); Sound.type(); }
+    if (k === 'g') { triggerGlitch(); }
+    if (k === 'r') { Rave.toggle(); updateFxIndicator('rave', Rave.active); }
 
+    // ===== KONAMI =====
+    if (k === KONAMI[konamiIdx]) {
+        konamiIdx++;
+        if (konamiIdx === KONAMI.length) {
+            konamiIdx = 0;
+            Rave.start();
+            DadaInjector.inject();
+            setTimeout(function () { triggerGlitch(); }, 300);
+        }
+    } else if (k === KONAMI[0]) {
+        konamiIdx = 1;
+    } else {
+        konamiIdx = 0;
+    }
+});
         /* ============ HANA CLICK ============ */
         const hanaResp = document.getElementById('hana-response');
         let hanaTimer = null;
